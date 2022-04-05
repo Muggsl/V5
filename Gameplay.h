@@ -27,6 +27,7 @@ class Gameplay
         void Play();
         void printVector();
         void printEnemyVector();
+        int convertYCharToInt(char y);
         void AIaddShipRandom(vector<vector<Tile>> &vec, int size);
         void playerAddShip(int size);
         bool placeShip(int y, int x, bool horizontal, int size);
@@ -36,7 +37,7 @@ class Gameplay
         void bombPoint(int x, int y);
         void playerMove();
         void AIMove();
-        void AIBomb();
+        void AIBomb(int x, int y);
         void AISmartBomb();
         void saveGame();
         void epicText();
@@ -50,12 +51,13 @@ class Gameplay
         vector<vector<Tile>> AIGrid;
         vector<vector<int>> playerShipLocations;
         vector<vector<int>> AIShipLocations;
+       //vector<tuple<int, int>> TheLoop; // locations surrounding last AI hit
+        //tuple<int, int> AiHit; // last location AI hit
         // keeps track of the orignal bomb that hit
         // we then make a smaller hit box made up from them
         int lastBombed[2] = {-1,-1};
         int smartBombCount = 0;
         bool amISmart = false;
-        
         
         
         friend ostream &operator << (ostream& strm, Tile t)

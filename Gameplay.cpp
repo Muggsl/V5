@@ -15,11 +15,15 @@ using namespace std;
 #include<fstream>
 bool newGame = true;
 
-
+#ifdef _WIN32
+    #define CLEAR "cls"
+#else
+    #define CLEAR "clear"
+#endif
 
 void Gameplay::epicText()
 {
-    system("clear");
+    system(CLEAR);
     cout << "------------------------------------------------------------------" << endl;
     cout << "War... War never changes" << endl;
     cout << "The Romans waged war to gather slaves and wealth." << endl;
@@ -56,7 +60,7 @@ void Gameplay::Play()
         epicText();
         cout << "Enter your name: ";
         cin >> playerName;
-        system("clear");
+        system(CLEAR);
 
         cout << "Welcome to the battlefield commander " << playerName << ", please place your ships with haste, the nukes have already launched" << endl << endl;
         printVector();
@@ -86,7 +90,7 @@ void Gameplay::Play()
         delete sg;
         
     }
-    system("clear");
+    system(CLEAR);
     printEnemyVector();
     cout << endl;
     printVector();            
@@ -271,7 +275,7 @@ bool Gameplay::isEmptyCheck(vector<vector<Tile>> &vec, int size, int y, int x, b
                 if (vec[y][x+i] != empty)
                 {
                     return false;
-                }              
+                }
             }
             else
             {
@@ -450,8 +454,10 @@ void Gameplay::playerAddShip(int size)
                 cout << choice << endl;
             }
         }
-        cout << "x = 0-9, y = 0-9" << endl;
-        int x,y;
+        cout << "x = 0-9, y = A-J" << endl;
+        int x;
+        char y;
+        int y_int;
         cout << "x: ";
         cin >> x;
         while(!cin.good())
@@ -462,9 +468,10 @@ void Gameplay::playerAddShip(int size)
             cout << "x: ";
             cin >> x;
         }
-
+        // human gives letters, computer needs numbers
         cout << "y: ";
         cin >> y;
+        
         while(!cin.good())
         {
             cout << "Error" << endl;
@@ -472,11 +479,11 @@ void Gameplay::playerAddShip(int size)
             cin.ignore(256,'\n');
             cin >> y;
         }
-          
-        if(placeShip(y,x,horizontal,size)){break;}
+        y_int = convertYCharToInt(y);
+        if(placeShip(y_int,x,horizontal,size)){break;}
         
     }
-    system("clear");
+    system(CLEAR);
 }
 // filling enemy vector with empty tiles.
 void Gameplay::populateEmptyTiles(vector<vector<Tile>> &vec, int x, int y)
@@ -557,21 +564,30 @@ void Gameplay::quitGame()
 
 void Gameplay::AIMove()
 {
-    AIBomb(); 
+    // Was the previous move a hit?
+    // If not, we will randomly select a point to bomb
+    //if (!AiHit & AiMoves.size() == 0){
+        int x = rand() % GRID_SIZE;
+        int y = rand() % GRID_SIZE;
+        AIBomb(x,y);
+    //}
+    //if (TheLoop.size() =! 0){
+        //AIBomb(TheLoop.back().x, TheLoop.back().y);
+    //}
+    // Are we in a loop checking the surrounding tiles?
+
+   // AIBomb(); 
 }
 
 // just random bomb for now
-void Gameplay::AIBomb()
+void Gameplay::AIBomb(int x, int y)
 {
-    int x,y;
-    x = rand() % GRID_SIZE;
-    y = rand() % GRID_SIZE;
     
     if (playerGrid[x][y] == bombed || playerGrid[x][y] == checked)
     {
-        AIBomb();
+        AIMove(); // try again
     }
-    else if (playerGrid[x][y] == ship)
+    else if (playerGrid[x][y] == ship) // whapow
     {
         cout << "----------------------------------" << endl;
         cout << "*- WARNING A SHIP HAS BEEN HIT -**" << endl;
@@ -581,11 +597,12 @@ void Gameplay::AIBomb()
         amISmart = true;
         lastBombed[0] = x;
         lastBombed[1] = y;
+        //AiHit = true;
         
     }
     else if (playerGrid[x][y] == empty)
     {
-        playerGrid[x][y] = checked;
+        playerGrid[x][y] = checked; // sploosh
     }
 }
 // not ready
@@ -818,7 +835,6 @@ void SaveGame::loadPlayerName(string &name)
 }
 
 
-
 void SaveGame::writeHighScore(ScoreStruct s)
 {
     string data = s.name + " " + to_string(s.score) + "\n";
@@ -830,7 +846,7 @@ void SaveGame::writeHighScore(ScoreStruct s)
 }
 
 
-void Score::calculateScore(vector<vector<Tile>> playerVec, vector<vector<int>> playerSipsLocations, int turns, string name)
+void Score::calculateScore(vector<vector<Tile>> playerVec, vector<vector<int>> playerShipLocations, int turns, string name)
 {
     int shipsDown = 5 - playerShipLocations.size();
     int bombedPoints = 0;
@@ -885,3 +901,40 @@ bool SaveGame::my_cmp(const ScoreStruct& a, const ScoreStruct& b)
     return a.score > b.score;
 }
 
+int Gameplay::convertYCharToInt(char y){
+
+    if (y == 'A' || y == 'a'){
+        return 0;
+    }
+    else if (y == 'B' || y == 'b'){
+        return 1;
+    }
+    else if (y == 'C' || y == 'c'){
+        return 2;
+    }
+    else if (y == 'D' || y == 'd'){
+        return 3;
+    }
+    else if (y == 'E' || y == 'e'){
+        return 4;
+    }
+    else if (y == 'F' || y == 'f'){
+        return 5;
+    }
+    else if (y == 'G' || y == 'g'){
+        return 6;
+    }
+    else if (y == 'H' || y == 'h'){
+        return 7;
+    }
+    else if (y == 'I' || y == 'i'){
+        return 8;
+    }
+    else if (y == 'J' || y == 'j'){
+        return 9;
+    }
+    else{
+        return -1;
+    } 
+  
+}
